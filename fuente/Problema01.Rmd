@@ -1,0 +1,60 @@
+---
+title: "Taller Probabilidades"
+author: "Alvaro Perez N"
+date: "2023-09-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r P011, echo=TRUE, eval=TRUE}
+# Función para estimar pi
+estimate_pi <- function(n) {
+  # Generar n puntos x e y
+  x <- runif(n, min = 0, max = 1)
+  y <- runif(n, min = 0, max = 1)
+  
+  # Calcular si cada punto está dentro del círculo
+  inside <- ifelse((x - 0.5)^2 + (y - 0.5)^2 <= 0.25, 1, 0)
+  
+  # Estimar pi
+  pi_est <- 4 * sum(inside) / n
+  
+  return(pi_est)
+}
+
+# Probar la función con 1000 puntos
+estimate_pi(1000)
+```
+
+```{r P012, echo=TRUE, eval=TRUE}
+# Generar 1000 puntos x e y
+n <- 1000
+x <- runif(n, min = 0, max = 1)
+y <- runif(n, min = 0, max = 1)
+
+# Calcular si cada punto está dentro del círculo
+inside <- ifelse((x - 0.5)^2 + (y - 0.5)^2 <= 0.25, 1, 0)
+
+# Estimar pi
+pi_est <- 4 * sum(inside) / n
+
+# Crear un trazado de los puntos
+plot(x, y, col = ifelse(inside == 1, "#1E6BB8", "#ABB2B9"))
+
+```
+
+```{r P013, echo=TRUE, eval=TRUE}
+n <- 1000
+x <- runif(n, min = 0, max = 1)
+y <- runif(n, min = 0, max = 1)
+inside <- ifelse((x - 0.5)^2 + (y - 0.5)^2 <= 0.25, 1, 0)
+points_inside <- sum(inside)
+pi_est <- estimate_pi(n)
+
+print(paste("Número de puntos dentro del círculo: ", points_inside))
+print(paste("Estimación de π: ", pi_est))
+```

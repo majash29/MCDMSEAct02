@@ -1,0 +1,54 @@
+---
+title: "Taller Probabilidades"
+author: "Alvaro Perez N"
+date: "2023-09-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Punto Uno
+
+```{r P041, echo=TRUE, eval=TRUE}
+# Datos de la muestra
+muestra <- c(7.69, 4.97, 4.56, 6.49, 4.34, 6.24, 4.45)
+
+# Número de muestras bootstrap
+k <- 1000
+
+# Vector para almacenar las medias de las muestras bootstrap
+medias_bootstrap <- numeric(k)
+
+# Realizar el procedimiento bootstrap
+for (i in 1:k) {
+  muestra_bootstrap <- sample(muestra, replace = TRUE)
+  medias_bootstrap[i] <- mean(muestra_bootstrap)
+}
+
+# Calcular los percentiles P2.5 y P97.5 de las medias bootstrap
+percentiles <- quantile(medias_bootstrap, c(0.025, 0.975))
+
+# Calcular la media de la muestra original
+media_original <- mean(muestra)
+
+# Calcular los intervalos de confianza por los dos métodos
+intervalo_metodo1 <- percentiles
+intervalo_metodo2 <- c(2 * media_original - percentiles[2], 2 * media_original - percentiles[1])
+```
+
+# Punto Dos
+
+```{r P042, echo=TRUE, eval=TRUE}
+# Mostrar los resultados del Metodo 1
+print("Intervalo de confianza Método 1:")
+print(intervalo_metodo1)
+```
+
+# Punto Tres
+
+```{r P043, echo=TRUE, eval=TRUE}
+# Mostrar los resultados del Metodo 2
+print("Intervalo de confianza Método 2:")
+print(intervalo_metodo2)
+```

@@ -1,0 +1,114 @@
+---
+title: "Taller Probabilidades"
+author: "Alvaro Perez N"
+date: "2023-09-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r P021, echo=TRUE, eval=TRUE}
+# Establecer una semilla para la generación de números aleatorios.
+set.seed(123)
+
+# Definir los tamaños de muestra que se utilizarán en la simulación.
+n_muestras <- c(20, 50, 100, 1000)
+
+# Valor verdadero del parámetro que se está estimando.
+theta <- 5
+
+# Crear un dataframe vacío para almacenar los resultados.
+resultados_df <- data.frame()
+```
+
+```{r P022, echo=TRUE, eval=TRUE}
+# Proceso de Iterar a través de diferentes tamaños de muestra.
+for (n in n_muestras) {
+  # Número de simulaciones para cada tamaño de muestra.
+  num_simulaciones <- n
+  
+  # Definir una lista de estimadores como funciones.
+  estimadores <- list(
+    Estimador_1 = function(x) (x[1] + x[2])/6 + (x[3] + x[4])/3,
+    Estimador_2 = function(x) (x[1] + 2*x[2] + 3*x[3] + 4*x[4])/5,
+    Estimador_3 = function(x) sum(x)/4,
+    Estimador_4 = function(x) (min(x) + max(x))/2
+  )
+  
+  # Generar datos simulados a partir de una distribución exponencial.
+  simulaciones <- matrix(rexp(4 * num_simulaciones, rate = 1/theta), nrow = num_simulaciones)
+  
+  # Calcular las estimaciones de los estimadores para cada conjunto de datos simulados.
+  estimaciones <- matrix(apply(simulaciones, 1, function(x) sapply(estimadores, function(est) est(x))), nrow = num_simulaciones)
+  
+  # Calcular el sesgo, la eficiencia, la consistencia, la media y la varianza de las estimaciones.
+  sesgos <- colMeans(estimaciones) - theta
+  eficiencias <- 1 / colMeans((estimaciones - theta)^2)
+  consistencias <- colMeans((estimaciones - theta)^2)
+  medias <- colMeans(estimaciones)
+  varianzas <- apply(estimaciones, 2, var)
+  
+  # Crear un dataframe temporal con los resultados para el tamaño de muestra actual.
+  resultados_temp <- data.frame(Estimador = names(estimadores), N = n, 
+                                Sesgo = sesgos, Eficiencia = eficiencias, 
+                                Consistencia = consistencias, Media = medias, 
+                                Varianza = varianzas)
+  
+  # Agregar los resultados temporales al dataframe principal.
+  resultados_df <- rbind(resultados_df, resultados_temp)
+}
+```
+
+```{r P023, echo=TRUE, eval=TRUE}
+library(knitr)
+# Tabla de resultados de los estimadores y sus  propiedades
+kable(resultados_df, format = "markdown")
+```
+
+```{r P024, echo=TRUE, eval=TRUE}
+# Gráficos de caja para el Sesgo
+boxplot(resultados_df$Sesgo ~ resultados_df$Estimador, 
+        data = resultados_df, 
+        xlab = "Estimador", 
+        ylab = "Sesgo", 
+        main = "Sesgo del Estimador por Tamaño de Muestra")
+```
+
+```{r P025, echo=TRUE, eval=TRUE}
+# Gráficos de caja para la Eficiencia
+boxplot(resultados_df$Eficiencia ~ resultados_df$Estimador, 
+        data = resultados_df, 
+        xlab = "Estimador", 
+        ylab = "Eficiencia", 
+        main = "Eficiencia del Estimador por Tamaño de Muestra")
+```
+
+```{r P026, echo=TRUE, eval=TRUE}
+# Gráficos de caja para la Consistencia
+boxplot(resultados_df$Consistencia ~ resultados_df$Estimador, 
+        data = resultados_df, 
+        xlab = "Estimador", 
+        ylab = "Consistencia", 
+        main = "Consistencia del Estimador por Tamaño de Muestra")
+```
+
+```{r P027, echo=TRUE, eval=TRUE}
+# Gráficos de caja para la Media
+boxplot(resultados_df$Media ~ resultados_df$Estimador, 
+        data = resultados_df, 
+        xlab = "Estimador", 
+        ylab = "Media", 
+        main = "Media del Estimador por Tamaño de Muestra")
+```
+
+```{r P028, echo=TRUE, eval=TRUE}
+# Gráficos de caja para la Varianza
+boxplot(resultados_df$Varianza ~ resultados_df$Estimador, 
+        data = resultados_df, 
+        xlab = "Estimador", 
+        ylab = "Varianza", 
+        main = "Varianza del Estimador por Tamaño de Muestra")
+```

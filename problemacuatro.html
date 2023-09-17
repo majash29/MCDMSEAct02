@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Métodos y simulación estadística</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<div>
+										<div style="float:left">
+											<strong>Unidad 02:</strong> Probabilidad e inferencia estad&iacute;stica<br/>
+											<strong>Asignatura:</strong> M&eacute;todos y simulaci&oacute;n estad&iacute;stica<br/>
+											Maestr&iacute;a en Ciencia de datos<br/>
+											Pontificia Universidad Javeriana
+										</div>
+										<div style="float:right">
+											<img src="images/escudoPUJ.png" alt="logo" width="336" height="100" align="right">
+										</div>
+									</div>
+									
+								</header>
+
+							<!-- Section -->
+								<!-- Aqui -->
+								<ul class="actions" style="float:right">
+									<li>
+										<a href="index.html" class="button primary">
+											<span class="icon solid fa-home"></span>
+											Inicio
+										</a>
+									</li>
+								</ul>
+
+								<section>
+									<header class="main">
+										<h1>Problema 04: Estimacci&oacute;n boostrap</h1>
+									</header>
+										<h2>Planteamiento:</h2>
+										<p style="text-align:justify">
+											Cuando se extrae una muestra de una poblaci&oacute;n que no es normal y se requiere 
+											estimar un intervalo de confianza se pueden utilizar los m&eacute;todos de estimaci&oacute;n
+											bootstrap. Esta metodolog&iacute;a supone que se puede reconstruir la poblaci&oacute;n objeto
+											de estudio mediante un muestreo con reemplazo de la muestra que se tiene. Existen varias 
+											versiones del m&eacute;todo. Una presentaci&oacute;n b&aacute;sica del m&eacute;todo se 
+											describe a continuaci&oacute;n:<br/><br/>
+											El artículo de In-use Emissions from Heavy Duty Dissel Vehicles (J.Yanowitz, 2001) presenta 
+											las mediciones de eficiencia de combustible en millas/galón de una muestra de siete camiones. 
+											Los datos obtenidos son los siguientes: 7.69, 4.97, 4.56, 6.49, 4.34, 6.24 y 4.45. Se supone 
+											que es una muestra aleatoria de camiones y que se desea construir un intervalo de confianza 
+											del 95 % para la media de la eficiencia de combustible de esta población. No se tiene 
+											información de la distribución de los datos. El método bootstrap permite construir intervalos 
+											de confianza del 95 % - Para ilustrar el método suponga que coloca los valores de la muestra 
+											en una caja y extrae uno al azar. Este correspondería al primer valor de la muestra bootstrap 
+											<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>X</mi><mover><mn>1</mn><mo>*</mo>
+											</mover></msub></math>. Después de anotado el valor se regresa <math xmlns="http://www.w3.org/1998/Math/MathML">
+											<msub><mi>X</mi><mover><mn>1</mn><mo>*</mo></mover></msub></math> a la caja y se extrae el valor 
+											<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>X</mi><mover><mn>2</mn><mo>*</mo>
+											</mover></msub></math>, regresandolo nuevamente. Este procedimiento se repite hasta completar 
+											una muestra de tamaño n, <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>X</mi><mover>
+											<mn>1</mn><mo>*</mo></mover></msub><mo>,</mo><mo>&#xA0;</mo><msub><mi>X</mi><mover><mn>2</mn><mo>*
+											</mo></mover></msub><mo>,</mo><msub><mi>X</mi><mover><mn>3</mn><mo>*</mo></mover></msub><mo>,</mo>
+											<msub><mi>X</mi><mover><mi>n</mi><mo>*</mo></mover></msub></math>, conformando la muestra bootstrap.<br/><br/>
+											Es necesario extraer un gran número de muestras (suponga k = 1000). Para cada una de las muestra 
+											bootstrap obtenidas se calcula la media <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mover>
+											<mi>X</mi><mo>&#x23DC;</mo></mover><mover><mi>i</mi><mo>*</mo></mover></msub></math>, obteniéndose un 
+											valor para cada muestra. El intervalo de confianza queda conformado por los percentiles 
+											P2.5 y P97.5. Existen dos métodos para estimarlo:
+											<br/>
+											<strong>Modelo 01: </strong><math xmlns="http://www.w3.org/1998/Math/MathML"><mo>(</mo><msub><mi>P</mi>
+												<mrow><mn>2</mn><mo>.</mo><mn>5</mn></mrow></msub><mo>;</mo><msub><mi>P</mi><mrow><mn>97</mn><mo>.
+												</mo><mn>5</mn></mrow></msub><mo>)</mo></math><br/>
+											<strong>Modelo 02: </strong><math xmlns="http://www.w3.org/1998/Math/MathML"><mo>(</mo><mn>2</mn><mover>
+												<mrow><mi>X</mi><mo>&#xA0;</mo></mrow><mo>&#x23DC;</mo></mover><mo>-</mo><mo>&#xA0;</mo><msub>
+												<mi>P</mi><mrow><mn>97</mn><mo>.</mo><mn>5</mn></mrow></msub><mo>;</mo><mo>&#xA0;</mo><mn>2</mn>
+												<mover><mrow><mi>X</mi><mo>&#xA0;</mo></mrow><mo>&#x23DC;</mo></mover><mo>-</mo><mo>&#xA0;</mo><msub>
+												<mi>P</mi><mrow><mn>2</mn><mo>.</mo><mn>5</mn></mrow></msub><mo>)</mo></math>
+										</p>
+										<h2>Soluci&oacute;n:</h2>
+<pre class="r"><code>
+# Datos de la muestra
+muestra &lt;- c(7.69, 4.97, 4.56, 6.49, 4.34, 6.24, 4.45)
+											
+# Número de muestras bootstrap
+k &lt;- 1000
+											
+# Vector para almacenar las medias de las muestras bootstrap
+medias_bootstrap &lt;- numeric(k)
+											
+# Realizar el procedimiento bootstrap
+for (i in 1:k) {
+	muestra_bootstrap &lt;- sample(muestra, replace = TRUE)
+	medias_bootstrap[i] &lt;- mean(muestra_bootstrap)
+}
+											
+# Calcular los percentiles P2.5 y P97.5 de las medias bootstrap
+percentiles &lt;- quantile(medias_bootstrap, c(0.025, 0.975))
+											
+# Calcular la media de la muestra original
+media_original &lt;- mean(muestra)
+											
+# Calcular los intervalos de confianza por los dos métodos
+intervalo_metodo1 &lt;- percentiles
+intervalo_metodo2 &lt;- c(2 * media_original - percentiles[2], 2 * media_original - percentiles[1])
+</code></pre>
+
+<strong>Modelo 01: </strong><math xmlns="http://www.w3.org/1998/Math/MathML"><mo>(</mo><msub><mi>P</mi>
+	<mrow><mn>2</mn><mo>.</mo><mn>5</mn></mrow></msub><mo>;</mo><msub><mi>P</mi><mrow><mn>97</mn><mo>.
+	</mo><mn>5</mn></mrow></msub><mo>)</mo></math>
+<pre class="r"><code>
+# Mostrar los resultados del Metodo 1
+print(&quot;Intervalo de confianza Método 1:&quot;)
+print(intervalo_metodo1)
+</code></pre>
+<pre><code>
+## [1] &quot;Intervalo de confianza Método 1:&quot;
+
+##     2.5%    97.5% 
+## 4.719643 6.440107
+</code></pre>
+
+<strong>Modelo 02: </strong><math xmlns="http://www.w3.org/1998/Math/MathML"><mo>(</mo><mn>2</mn><mover>
+	<mrow><mi>X</mi><mo>&#xA0;</mo></mrow><mo>&#x23DC;</mo></mover><mo>-</mo><mo>&#xA0;</mo><msub>
+	<mi>P</mi><mrow><mn>97</mn><mo>.</mo><mn>5</mn></mrow></msub><mo>;</mo><mo>&#xA0;</mo><mn>2</mn>
+	<mover><mrow><mi>X</mi><mo>&#xA0;</mo></mrow><mo>&#x23DC;</mo></mover><mo>-</mo><mo>&#xA0;</mo><msub>
+	<mi>P</mi><mrow><mn>2</mn><mo>.</mo><mn>5</mn></mrow></msub><mo>)</mo></math>
+
+<pre class="r"><code>
+# Mostrar los resultados del Metodo 2
+print(&quot;Intervalo de confianza Método 2:&quot;)
+print(intervalo_metodo2)
+</code></pre>
+<pre><code>
+## [1] &quot;Intervalo de confianza Método 2:&quot;
+##    97.5%     2.5% 
+## 4.628464 6.348929
+</code></pre>
+
+<h5>Conclusi&oacute;n:</h5>
+<p>
+	Luego de aplicar el método bootstrap para estimar un intervalo de confianza del 95% 
+	para la media de la eficiencia de combustible en la población de camiones, obtuvimos 
+	los siguientes resultados:<br/>
+	<ul>
+		<li>
+			<strong>Método 1: </strong>(4.719643, 6.440107)
+		</li>
+		<li>
+			<strong>Método 2: </strong>(4.628464, 6.348929)
+		</li>
+	</ul> 
+	Estos intervalos de confianza nos proporcionan una estimación de dónde podría estar 
+	la verdadera media de la eficiencia de combustible en la población de camiones con un 
+	nivel de confianza del 95%.<br/>
+	Al comparar los dos métodos, observamos que ambos intervalos tienen una amplitud similar 
+	y se solapan en gran medida. Esto sugiere que las dos metodologías de estimación son 
+	consistentes en este caso y proporcionan resultados similares.<br/>
+	Por lo anterior, podemos afirmar basándonos en los resultados obtenidos, tenemos un 
+	intervalo de confianza del 95% para la media de la eficiencia de combustible de los 
+	camiones en la población, que va desde aproximadamente 4.62 a 6.44 millas por galón. 
+	Estos resultados son útiles para tener una idea de la variabilidad en la eficiencia de 
+	combustible de la población de camiones y proporcionan una base sólida para tomar 
+	decisiones o realizar inferencias sobre esta característica en la población en general.
+</p>
+
+									<hr class="major" />
+								<section>
+				<!-- Sidebar -->
+					<div id="sidebar">
+						<div class="inner">
+							<!-- Search -->
+								<div align="right"><img src="images/escudoPUJ.png" alt="logo" width="250" height="100"> </div>
+							<!-- Menu -->
+								<nav id="menu">
+									<header class="major">
+										<h2>Unidad 02: Probabilidad e inferencia estadística</h2>
+									</header>
+									<ul>
+										<li><a href="index.html">Inicio</a></li>
+										<li><a href="problemauno.html">Problema 01</a></li>
+										<li><a href="problemados.html">Problema 02</a></li>
+										<li><a href="problematres.html">Problema 03</a></li>
+										<li><a href="problemacuatro.html">Problema 04</a></li>
+									</ul>
+								</nav>
+								<br/>
+							<!-- Section -->
+								<section>
+									<header class="major">
+										<h2>Equipo de Trabajo</h2>
+									</header>
+									<ul class="contact">
+										<li class="icon solid fa-envelope"> Alvaro P&eacute;rez N</li>
+									</ul>
+								</section>
+						</div>
+					</div>
+				
+				<!-- Footer -->
+				<footer class="piepag" style="color: #ffffff;">
+					&copy;aperezn. All rights reserved - Septiembre de 2023 <br/>
+					Alvaro P&eacute;rez Ni&ntilde;o - Estudiante<br>
+					C&oacute;digo: 8986470
+				</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,203 @@
+---
+title: "Taller Probabilidades"
+author: "Alvaro Perez N"
+date: "2023-09-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Punto Uno
+
+```{r P031, echo=TRUE, eval=TRUE}
+#Punto 01:
+# Establecer la semilla para reproducibilidad
+set.seed(123)
+
+# Tamaño de la población
+n_poblacion <- 1000
+
+# Porcentaje de plantas enfermas en la población (50%)
+proporcion_enfermas <- 0.5
+
+# Tamaño de muestra
+n_muestra <- 30  # Puedes cambiar este valor según tu umbral
+
+# Realizar simulación
+muestras <- matrix(NA, nrow = 1000, ncol = n_muestra)
+
+for (i in 1:1000) {
+  muestra <- sample(c(0, 1), size = n_muestra, replace = TRUE, prob = c(1 - proporcion_enfermas, proporcion_enfermas))
+  muestras[i, ] <- muestra
+}
+
+# Calcular la proporción muestral para cada muestra
+proporciones_muestrales <- rowMeans(muestras)
+
+# Histograma de las proporciones muestrales
+hist(proporciones_muestrales, main = "Histograma de Proporciones Muestrales",
+     xlab = "Proporción Muestral", ylab = "Frecuencia", col = "lightblue")
+
+# Ajuste de una distribución normal
+curve(dnorm(x, mean = mean(proporciones_muestrales), sd = sd(proporciones_muestrales)),
+      col = "red", lwd = 2, add = TRUE)
+
+# Leyenda
+legend("topright", legend = c("Distribución Normal", "Proporciones Muestrales"), col = c("red", "black"), lwd = c(2, 1))
+
+```
+
+# Punto Dos
+
+```{r P032, echo=TRUE, eval=TRUE}
+#Punto 02:
+obtener_muestra_y_phat <- function(n, proporcion_enfermas) {
+  muestra <- sample(c(0, 1), size = n, replace = TRUE, prob = c(1 - proporcion_enfermas, proporcion_enfermas))
+  phat <- sum(muestra) / n
+  return(phat)
+}
+
+# Ejemplo de uso
+tamanio_muestra <- 30
+proporcion_enfermas <- 0.5  # Porcentaje de individuos enfermos en la población (50%)
+resultado <- obtener_muestra_y_phat(tamanio_muestra, proporcion_enfermas)
+print(resultado)
+
+```
+
+# Punto Tres
+
+```{r P033, echo=TRUE, eval=TRUE}
+#Punto 03:
+# Establecer la semilla para reproducibilidad
+set.seed(123)
+
+# Parámetros
+n_simulaciones <- 500
+tamanio_muestra <- 30
+proporcion_enfermas <- 0.5
+
+# Vector para almacenar los resultados de p-hat
+resultados_phat <- numeric(n_simulaciones)
+
+# Realizar las simulaciones
+for (i in 1:n_simulaciones) {
+  muestra <- sample(c(0, 1), size = tamanio_muestra, replace = TRUE, prob = c(1 - proporcion_enfermas, proporcion_enfermas))
+  phat <- sum(muestra) / tamanio_muestra
+  resultados_phat[i] <- phat
+}
+
+# Histograma de los resultados de p-hat
+hist(resultados_phat, main = "Histograma de Estimaciones p-hat (500 simulaciones)",
+     xlab = "p-hat", ylab = "Frecuencia", col = "lightblue")
+
+# Mediana y media de los resultados de p-hat
+mediana <- median(resultados_phat)
+media <- mean(resultados_phat)
+
+# Agregar líneas al histograma para la mediana y la media
+abline(v = mediana, col = "red", lwd = 2, lty = 2)
+abline(v = media, col = "blue", lwd = 2, lty = 2)
+
+# Leyenda
+legend("topright", legend = c("Mediana", "Media"), col = c("red", "blue"), lwd = c(2, 2), lty = c(2, 2))
+
+# Skewness (coeficiente de asimetría)
+library(e1071)
+asimetria <- skewness(resultados_phat)
+
+# Variabilidad (desviación estándar)
+desviacion_estandar <- sd(resultados_phat)
+
+# Resultados
+cat("Mediana de p-hat:", mediana, "\n")
+cat("Media de p-hat:", media, "\n")
+cat("Coeficiente de asimetría (skewness):", asimetria, "\n")
+cat("Desviación estándar de p-hat:", desviacion_estandar, "\n")
+```
+
+# Punto Cuatro
+
+```{r P034, echo=TRUE, eval=TRUE}
+# Establecer la semilla para reproducibilidad
+set.seed(123) 
+
+# Población de 1000 individuos con 50% de enfermos
+poblacion <- rep(c(0, 1), each = 500)
+
+# Función para obtener una muestra aleatoria y calcular p
+obtener_muestra_p <- function(n) {
+  muestra <- sample(poblacion, size = n, replace = T)
+  estimador_p <- sum(muestra) / n
+  return(estimador_p)
+}
+
+# Repetir lo anterior para una muestra n=500 veces
+resultados <- replicate(500, obtener_muestra_p(1000))
+
+# Calcular simetría, sesgo y variabilidad de los estimadores
+simetria <- mean(resultados) - median(resultados)
+sesgo <- mean(resultados) - 0.5
+variabilidad <- var(resultados)
+
+# Resultados de simetría, sesgo y variabilidad
+cat("Simetría:", simetria, "\n")
+cat("Sesgo:", sesgo, "\n")
+cat("Variabilidad:", variabilidad, "\n")
+
+# Tamaños de muestra
+tamanos_muestra <- c(5, 10, 15, 20, 30, 50, 60, 100, 200, 500)
+
+# Función para realizar el análisis de normalidad y generar gráficos QQ-plot
+analisis_normalidad <- function(n) {
+  # Repetir n=500 veces
+  resultados <- replicate(500, obtener_muestra_p(n))
+  
+  # Prueba de Shapiro-Wilk
+  shapiro_result <- shapiro.test(resultados)
+  
+  # Gráfico de los resultados QQ-plot
+  plot(qqnorm(resultados))
+  abline(0, 1, col = "red")  # Línea de referencia
+  title(paste("QQ Plot para n =", n))
+  
+  # Comentario sobre los resultados
+  cat("Tamaño de muestra:", n, "\n")
+  cat("Prueba de Shapiro-Wilk:", shapiro_result$p.value, "\n")
+  cat("\n")
+}
+
+# Realizar análisis de normalidad para diferentes tamaños de muestra
+for (n in tamanos_muestra) {
+  analisis_normalidad(n)
+}
+
+# Porcentaje de plantas enfermas 10% y 90%
+porcentajes_enfermas <- c(10, 90)
+
+# Realizar la simulación para cada porcentaje de plantas enfermas
+for (p in porcentajes_enfermas) {
+  # Generar una población con el porcentaje de plantas enfermas dado
+  poblacion <- rep(c(0, 1), each = 500 * (p / 100))
+  
+  cat("Porcentaje de plantas enfermas:", p, "%\n")
+  
+  # Repetir los puntos b y c
+  resultados <- replicate(500, obtener_muestra_p(1000))
+  simetria <- mean(resultados) - median(resultados)
+  sesgo <- mean(resultados) - (p / 100)
+  variabilidad <- var(resultados)
+  
+  cat("Simetría:", simetria, "\n")
+  cat("Sesgo:", sesgo, "\n")
+  cat("Variabilidad:", variabilidad, "\n")
+  
+  # Repetir el punto d
+  for (n in tamanos_muestra) {
+    analisis_normalidad(n)
+  }
+  
+  cat("\n")
+}
+```
